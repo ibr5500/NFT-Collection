@@ -23,7 +23,7 @@ async function main() {
 
   await deployedCryptoDevsContract.deployed();
 
-  console.log("Crypto Devs Contract Address: ", deployedCryptoDevsContract);
+  console.log("Crypto Devs Contract Address: ", deployedCryptoDevsContract.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
