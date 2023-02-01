@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -10,7 +10,6 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
      * @dev _baseTokenURI for computing {tokenURI}. If set, the resulting URI for each
      * token will be the concatenation of the `baseURI` and the `tokenId`.
      */
-
     string _baseTokenURI;
 
     //  _price is the price of one Crypto Dev NFT
@@ -25,7 +24,7 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
     // total number of tokenIds minted
     uint256 public tokenIds;
 
-    // WhiteList contract instance
+    // Whitelist contract instance
     IWhitelist whitelist;
 
     // boolean to keep track of whether presale started or not
@@ -45,7 +44,6 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
      * Constructor for Crypto Devs takes in the baseURI to set _baseTokenURI for the collection.
      * It also initializes an instance of whitelist interface.
      */
-
     constructor(
         string memory baseURI,
         address whitelistContract
@@ -57,7 +55,6 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
     /**
      * @dev startPresale starts a presale for the whitelisted addresses
      */
-
     function startPresale() public onlyOwner {
         presaleStarted = true;
         // Set presaleEnded time as current timestamp + 5 minutes
@@ -79,10 +76,24 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
         );
         require(tokenIds < maxTokenIds, "Exceeded maximum Crypto Devs supply");
         require(msg.value >= _price, "Ether sent is not correct");
-        tokenIds++;
+        tokenIds += 1;
         //_safeMint is a safer version of the _mint function as it ensures that
         // if the address being minted to is a contract, then it knows how to deal with ERC721 tokens
         // If the address being minted to is not a contract, it works the same way as _mint
+        _safeMint(msg.sender, tokenIds);
+    }
+
+    /**
+     * @dev mint allows a user to mint 1 NFT per transaction after the presale has ended.
+     */
+    function mint() public payable onlyWhenNotPaused {
+        require(
+            presaleStarted && block.timestamp >= presaleEnded,
+            "Presale has not ended yet"
+        );
+        require(tokenIds < maxTokenIds, "Exceed maximum Crypto Devs supply");
+        require(msg.value >= _price, "Ether sent is not correct");
+        tokenIds += 1;
         _safeMint(msg.sender, tokenIds);
     }
 
